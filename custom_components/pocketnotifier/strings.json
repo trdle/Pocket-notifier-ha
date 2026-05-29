@@ -1,0 +1,21 @@
+{
+  "config": {
+    "abort": {
+      "already_configured": "A channel with this name is already configured"
+    },
+    "step": {
+      "user": {
+        "title": "Add a PocketNotifier channel",
+        "description": "Each channel maps to one PocketNotifier API key and is exposed as a notify.<name> action.",
+        "data": {
+          "name": "Channel name",
+          "api_key": "API key"
+        },
+        "data_description": {
+          "name": "Used to build the service name, e.g. \"Living Room\" becomes notify.living_room.",
+          "api_key": "The PocketNotifier API key for this channel. It is not validated now — delivery failures are logged when a notification is sent."
+        }
+      }
+    }
+  }
+}
