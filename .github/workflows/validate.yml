@@ -23,3 +23,7 @@ jobs:
       - uses: hacs/action@main
         with:
           category: integration
+          # Skip the brands check: `pocketnotifier` is not (yet) registered in
+          # the home-assistant/brands repo, which is not required for a custom
+          # HACS integration. Remove this once brand images are added.
+          ignore: brands
