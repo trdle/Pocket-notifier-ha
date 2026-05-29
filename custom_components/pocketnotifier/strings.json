@@ -6,7 +6,7 @@
     "step": {
       "user": {
         "title": "Add a PocketNotifier channel",
-        "description": "Each channel maps to one PocketNotifier API key and is exposed as a notify.<name> action.",
+        "description": "Each channel maps to one PocketNotifier API key and is exposed as its own notify action, for example notify.living_room.",
         "data": {
           "name": "Channel name",
           "api_key": "API key"
