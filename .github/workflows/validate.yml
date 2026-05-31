@@ -15,15 +15,17 @@ jobs:
       - uses: actions/checkout@v4
       - uses: home-assistant/actions/hassfest@master
 
-  hacs:
-    name: HACS
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: hacs/action@main
-        with:
-          category: integration
-          # Skip the brands check: `pocketnotifier` is not (yet) registered in
-          # the home-assistant/brands repo, which is not required for a custom
-          # HACS integration. Remove this once brand images are added.
-          ignore: brands
+  # NOTE: The HACS validation job (hacs/action) was intentionally removed.
+  # It enforces publish-to-default-store requirements (brands registration,
+  # repository description/topics) and cannot fetch content from a private
+  # repository. Re-add it when publishing the repo publicly, e.g.:
+  #
+  #   hacs:
+  #     name: HACS
+  #     runs-on: ubuntu-latest
+  #     steps:
+  #       - uses: actions/checkout@v4
+  #       - uses: hacs/action@main
+  #         with:
+  #           category: integration
+  #           ignore: brands
