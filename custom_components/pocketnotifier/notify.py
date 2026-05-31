@@ -50,24 +50,33 @@ class PocketNotifierNotificationService(BaseNotificationService):
 
     async def async_send_message(self, message: str = "", **kwargs: Any) -> None:
         """Send a notification to the PocketNotifier channel."""
-        title = kwargs.get(ATTR_TITLE, ATTR_TITLE_DEFAULT)
-        data = kwargs.get(ATTR_DATA) or {}
+        title = kwargs.get(ATTR_TITLE) or ATTR_TITLE_DEFAULT
+
+        # `data` should be a mapping, but a caller can pass anything via the
+        # service `data` field; guard against non-dict values.
+        data = kwargs.get(ATTR_DATA)
+        if not isinstance(data, dict):
+            data = {}
 
         payload: dict[str, Any] = {"title": title, "body": message}
         # `url` is optional and only passed through when supplied via the
-        # service `data` field, e.g. `data: {url: "https://..."}`.
-        if (url := data.get(ATTR_URL)) is not None:
+        # service `data` field, e.g. `data: {url: "https://..."}`. An empty
+        # string is treated the same as "no url".
+        if url := data.get(ATTR_URL):
             payload[ATTR_URL] = url
 
         session = async_get_clientsession(self._hass)
         try:
-            response = await session.post(
+            # `allow_redirects=False` keeps the X-Api-Key header from being
+            # replayed to a redirect target if the relay ever returns a 3xx.
+            async with session.post(
                 API_URL,
                 headers={ATTR_API_KEY_HEADER: self._api_key},
                 json=payload,
                 timeout=_TIMEOUT,
-            )
-            response.raise_for_status()
+                allow_redirects=False,
+            ) as response:
+                response.raise_for_status()
         except aiohttp.ClientResponseError as err:
             raise HomeAssistantError(
                 f"PocketNotifier returned HTTP {err.status} ({err.message}). "

@@ -3,10 +3,10 @@
   "name": "PocketNotifier",
   "codeowners": ["@trdle"],
   "config_flow": true,
-  "documentation": "https://github.com/trdle/pocket-notifier-ha",
+  "documentation": "https://github.com/trdle/Pocket-notifier-ha",
   "integration_type": "service",
   "iot_class": "cloud_push",
-  "issue_tracker": "https://github.com/trdle/pocket-notifier-ha/issues",
+  "issue_tracker": "https://github.com/trdle/Pocket-notifier-ha/issues",
   "requirements": [],
-  "version": "1.0.0"
+  "version": "1.0.1"
 }

@@ -8,6 +8,7 @@ import voluptuous as vol
 
 from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
 from homeassistant.const import CONF_API_KEY, CONF_NAME
+from homeassistant.util import slugify
 
 from .const import DEFAULT_NAME, DOMAIN
 
@@ -34,14 +35,25 @@ class PocketNotifierConfigFlow(ConfigFlow, domain=DOMAIN):
         errors: dict[str, str] = {}
 
         if user_input is not None:
-            # The notify service name is derived from the channel name, so it
-            # must be unique across config entries.
-            self._async_abort_entries_match({CONF_NAME: user_input[CONF_NAME]})
+            name = user_input[CONF_NAME].strip()
+            slug = slugify(name)
 
-            return self.async_create_entry(
-                title=user_input[CONF_NAME],
-                data=user_input,
-            )
+            if not slug:
+                # An empty name, or one made only of characters that slugify
+                # away (e.g. punctuation/emoji), cannot form a valid
+                # notify.<name> service.
+                errors[CONF_NAME] = "invalid_name"
+            elif any(
+                slugify(entry.data[CONF_NAME]) == slug
+                for entry in self._async_current_entries()
+            ):
+                # The notify service name is derived from the channel name via
+                # slugify, so two names that slugify to the same id would
+                # collide on a single notify.<slug> service.
+                return self.async_abort(reason="already_configured")
+            else:
+                user_input[CONF_NAME] = name
+                return self.async_create_entry(title=name, data=user_input)
 
         return self.async_show_form(
             step_id="user",

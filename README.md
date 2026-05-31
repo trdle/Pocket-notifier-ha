@@ -24,8 +24,11 @@ the "Send a notification" UI.
 
 ### HACS (recommended)
 
+> HACS can only install from a **public** repository. If this repo is private,
+> use the manual method below instead.
+
 1. In HACS, open the three-dot menu → **Custom repositories**.
-2. Add `https://github.com/trdle/pocket-notifier-ha` with category
+2. Add `https://github.com/trdle/Pocket-notifier-ha` with category
    **Integration**.
 3. Search for **PocketNotifier**, install it, and restart Home Assistant.
 

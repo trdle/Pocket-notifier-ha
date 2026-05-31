@@ -3,6 +3,9 @@
     "abort": {
       "already_configured": "A channel with this name is already configured"
     },
+    "error": {
+      "invalid_name": "Enter a name that contains at least one letter or number"
+    },
     "step": {
       "user": {
         "title": "Add a PocketNotifier channel",
