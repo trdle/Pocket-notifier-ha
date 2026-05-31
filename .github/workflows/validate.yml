@@ -15,17 +15,16 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - uses: home-assistant/actions/hassfest@d56d093b9ab8d2105bc0cb6ee9bcc0ef4ec8b96d # master
 
-  # NOTE: The HACS validation job (hacs/action) was intentionally removed.
-  # It enforces publish-to-default-store requirements (brands registration,
-  # repository description/topics) and cannot fetch content from a private
-  # repository. Re-add it when publishing the repo publicly, e.g.:
-  #
-  #   hacs:
-  #     name: HACS
-  #     runs-on: ubuntu-latest
-  #     steps:
-  #       - uses: actions/checkout@v4
-  #       - uses: hacs/action@main
-  #         with:
-  #           category: integration
-  #           ignore: brands
+  # NOTE: `ignore: brands` because the `pocketnotifier` domain is not yet
+  # registered in the home-assistant/brands repo (requires a separate PR there
+  # with icon.png/icon@2x.png). The repository description and topics checks
+  # still require those to be set in the GitHub repo settings.
+  hacs:
+    name: HACS
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: hacs/action@d556e736723344f83838d08488c983a15381059a # 22.5.0
+        with:
+          category: integration
+          ignore: brands
