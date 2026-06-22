@@ -15,16 +15,43 @@ from homeassistant.components.notify import (
     BaseNotificationService,
 )
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import HomeAssistantError
+from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 
-from .const import ATTR_API_KEY_HEADER, ATTR_URL, API_URL, DOMAIN
+from .const import (
+    ATTR_API_KEY_HEADER,
+    ATTR_PRIORITY,
+    ATTR_URL,
+    API_URL,
+    DOMAIN,
+    PRIORITIES,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
 # Be generous: the relay fans out to multiple phones.
 _TIMEOUT = aiohttp.ClientTimeout(total=10)
+
+
+def _coerce_priority(value: Any) -> str:
+    """Validate and normalise the optional `priority` value.
+
+    Accepts the documented relay inputs: the strings "quiet"/"normal"/"urgent"
+    (case-insensitive) and booleans (``True`` -> "urgent", ``False`` ->
+    "normal"). Anything else raises ``ServiceValidationError``.
+    """
+    # `bool` must be handled before any string/number checks (bool is an int).
+    if isinstance(value, bool):
+        return "urgent" if value else "normal"
+    if isinstance(value, str):
+        normalized = value.strip().lower()
+        if normalized in PRIORITIES:
+            return normalized
+    raise ServiceValidationError(
+        f"Invalid PocketNotifier priority {value!r}. "
+        f"Allowed values: {', '.join(PRIORITIES)} (or a boolean; true = urgent)."
+    )
 
 
 async def async_get_service(
@@ -64,6 +91,13 @@ class PocketNotifierNotificationService(BaseNotificationService):
         # string is treated the same as "no url".
         if url := data.get(ATTR_URL):
             payload[ATTR_URL] = url
+
+        # `priority` is optional; omit it when not supplied so the relay applies
+        # its own default ("normal"). A bool `False` is a valid value, so check
+        # explicitly for absence rather than using a truthiness test.
+        priority = data.get(ATTR_PRIORITY)
+        if priority is not None and priority != "":
+            payload[ATTR_PRIORITY] = _coerce_priority(priority)
 
         session = async_get_clientsession(self._hass)
         try:

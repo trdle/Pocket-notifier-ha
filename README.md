@@ -47,11 +47,26 @@ Repeat to add as many channels as you like.
 
 The integration maps the standard notify fields onto the PocketNotifier API:
 
-| Notify field   | Sent to PocketNotifier |
-| -------------- | ---------------------- |
-| `message`      | `body`                 |
-| `title`        | `title`                |
-| `data: { url }`| `url` (optional)       |
+| Notify field        | Sent to PocketNotifier                              |
+| ------------------- | -------------------------------------------------- |
+| `message`           | `body`                                             |
+| `title`             | `title`                                            |
+| `data: { url }`     | `url` (optional)                                   |
+| `data: { priority }`| `priority` (optional: `quiet` / `normal` / `urgent`) |
+
+### Priority levels
+
+The optional `priority` controls how the notification is delivered:
+
+| Priority         | Effect                                                                 |
+| ---------------- | --------------------------------------------------------------------- |
+| `quiet`          | Silent — no sound or banner; it just lands in the notification list.  |
+| `normal`         | Default behaviour (used when `priority` is omitted).                  |
+| `urgent`         | Time Sensitive on iOS (breaks through Focus/scheduled summaries) and the high-importance Urgent channel on Android (heads-up banner + sound). |
+
+A boolean is also accepted as a shorthand (`true` = `urgent`, `false` =
+`normal`). Any other value is rejected with a clear error before anything is
+sent.
 
 ### Send a simple notification
 
@@ -71,6 +86,17 @@ data:
   message: "Someone is at the door"
   data:
     url: "https://my.home-assistant.io/lovelace/cameras"
+```
+
+### Send an urgent notification
+
+```yaml
+action: notify.living_room
+data:
+  title: "Alarm"
+  message: "Motion detected while armed"
+  data:
+    priority: urgent
 ```
 
 ### In an automation
@@ -98,12 +124,14 @@ POST https://pocketnotifier.vanmo.se/api/notify
 X-Api-Key: <your channel API key>
 Content-Type: application/json
 
-{ "title": "...", "body": "...", "url": "..." }
+{ "title": "...", "body": "...", "url": "...", "priority": "normal" }
 ```
+
+(`url` and `priority` are only included when supplied.)
 
 The integration uses Home Assistant's legacy notify platform
 (`BaseNotificationService`), the same approach used by Pushover, ntfy, Gotify
-and Bark, which gives a clean `data: { url: … }` passthrough.
+and Bark, which gives a clean `data: { url: …, priority: … }` passthrough.
 
 ## License
 
